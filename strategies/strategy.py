@@ -76,6 +76,37 @@ class ThetaGamma(Strategy):
         )
         # self.new_position_handler(spot)
 
+        
+        pass
+
+    def position_management(self, spot) -> None:
+        # if self.context.full_portfolio_size() > self.context.strategy_args["position_size_limit"]:
+        #     self.context.policy_variables["size_target"] = self.context.strategy_args[
+        #         "position_size_limit"
+        #     ]
+        #     self.context.policy_variables["lots_per_cycle"] = self.context.strategy_args["destruction_lots_per_cycle"]
+        #     self.context.set_policy(policy.Destructor())
+        
+        close_time = list(map(int, self.context.strategy_args["close_position_time"].split(":")))
+        t = datetime.strptime(str(self.context.MD.current_time), "%Y-%m-%d %H:%M:%S")
+        if (
+            t > t.replace(hour=close_time[0], minute=close_time[1], second=close_time[2], microsecond=0) and \
+            self.context.full_portfolio_size() > 0 and self.context.timeToMaturity() > 1
+        ):
+            self.hedge(spot)
+        
+        # self.context.strategy_args["DataStorage"].append(self.context.total_pnl)
+        
+        if (
+            t
+            > t.replace(hour=close_time[0], minute=close_time[1], second=close_time[2], microsecond=0)
+            or \
+                self.context.strategy_args["close_position"]
+            or self.context.hit_stop_loss):
+            self.context.policy_variables["size_target"] = 0
+            self.context.policy_variables["lots_per_cycle"] = self.context.strategy_args["destruction_lots_per_cycle"]
+            self.context.set_policy(policy.Destructor())
+        
         data = []
 
         t = self.context.MD.current_time
@@ -111,35 +142,7 @@ class ThetaGamma(Strategy):
 
 
         self.context.strategy_args["DataStorage"].append(data)
-        pass
 
-    def position_management(self, spot) -> None:
-        # if self.context.full_portfolio_size() > self.context.strategy_args["position_size_limit"]:
-        #     self.context.policy_variables["size_target"] = self.context.strategy_args[
-        #         "position_size_limit"
-        #     ]
-        #     self.context.policy_variables["lots_per_cycle"] = self.context.strategy_args["destruction_lots_per_cycle"]
-        #     self.context.set_policy(policy.Destructor())
-        
-        close_time = list(map(int, self.context.strategy_args["close_position_time"].split(":")))
-        t = datetime.strptime(str(self.context.MD.current_time), "%Y-%m-%d %H:%M:%S")
-        if (
-            t > t.replace(hour=close_time[0], minute=close_time[1], second=close_time[2], microsecond=0) and \
-            self.context.full_portfolio_size() > 0 and self.context.timeToMaturity() > 1
-        ):
-            self.hedge(spot)
-        
-        # self.context.strategy_args["DataStorage"].append(self.context.total_pnl)
-        
-        if (
-            t
-            > t.replace(hour=close_time[0], minute=close_time[1], second=close_time[2], microsecond=0)
-            or \
-                self.context.strategy_args["close_position"]
-            or self.context.hit_stop_loss):
-            self.context.policy_variables["size_target"] = 0
-            self.context.policy_variables["lots_per_cycle"] = self.context.strategy_args["destruction_lots_per_cycle"]
-            self.context.set_policy(policy.Destructor())
         pass
 
     def hedge_point(self, spot) -> bool:
