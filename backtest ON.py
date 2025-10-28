@@ -237,8 +237,11 @@ def run_one_day(day_file: pd.DataFrame, strategy_configs, date, starttime):
 
     transations = [traders[0].total_pnl, traders[0].buy_qty, traders[0].sell_qty, traders[0].buy_value, traders[0].sell_value, traders[0].total_lot_sizes_traded, traders[0].strategy_args["MaxPnl"], traders[0].strategy_args["MinPNL"], traders[0].total_pnl/strategy_configs[0]["strategy_args"]["demand"], strategy_configs[0]["strategy_args"]["demand"]]
     # Logger.always_output(sys.stdout, f"Avg Util : {sum(util)/len(util)}\n")   
+    
+    df = pd.DataFrame(traders[0].strategy_args["DataStorage"])
+
     init =  int(round(spot_price[0] / float(traders[0].movement))) * traders[0].movement
-    return init, transations
+    return init, transations, df
 
 def run_one_night_position(day_file: pd.DataFrame, strategy_configs, date, starttime):
     indices = []
@@ -631,6 +634,8 @@ def one_loop_ID(index, strategy, test_start_date, test_stop_date, new_init, star
 
     dates = []
 
+    df_list = []
+
     for subdir, dirs, files in os.walk(rootdir):
         for file in files:
             filepath = subdir + os.sep + file
@@ -643,6 +648,8 @@ def one_loop_ID(index, strategy, test_start_date, test_stop_date, new_init, star
                 if d1 < test_start_date:
                     continue
                 elif d1 > test_stop_date:
+                    combined_df = pd.concat(df_list, ignore_index=True)
+                    combined_df.to_csv(f"{strategy}-ID-Weekly-CombinedData.csv", index=False)
                     return new_init
                 
                 
@@ -691,9 +698,11 @@ def one_loop_ID(index, strategy, test_start_date, test_stop_date, new_init, star
 
 
                 try:
-                    new_init, transactions = backtest_dynamic_one_day(day_file_df, date, expiry, new_init, atr, adjustment, index, strategy, starttime, endtime, excess_strat_args)
+                    new_init, transactions, df = backtest_dynamic_one_day(day_file_df, date, expiry, new_init, atr, adjustment, index, strategy, starttime, endtime, excess_strat_args)
                     total_string = ",".join(map(str, transactions))
                     Logger.always_output(sys.stdout, f"{date},{total_string}\n")
+
+                    df_list.append(df)
                 
                 except Exception as e:
                     # raise Exception
@@ -701,6 +710,8 @@ def one_loop_ID(index, strategy, test_start_date, test_stop_date, new_init, star
                     continue
     t2 = time.time()
 
+    combined_df = pd.concat(df_list, ignore_index=True)
+    combined_df.to_csv(f"{strategy}-ID-Weekly-CombinedData.csv", index=False)
     return new_init
     pass
 
