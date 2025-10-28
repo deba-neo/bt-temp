@@ -75,6 +75,42 @@ class ThetaGamma(Strategy):
             * self.context.strategy_args["quantity_limit"]
         )
         # self.new_position_handler(spot)
+
+        data = []
+
+        t = self.context.MD.current_time
+        data.append(str(t))
+
+        spot = spot
+        data.append(spot)
+
+        pnl = self.context.PnL()
+        data.append(pnl)
+
+        ttm = self.context.timeToMaturity()
+        data.append(ttm)
+
+        atm_IV = self.context.straddle_IV(spot)
+        data.append(atm_IV)
+
+        atm_straddle_price, atm_strike = self.context.atm_straddle_price(spot)
+        data.append(atm_straddle_price)
+        data.append(atm_strike)
+
+        strike_gap = self.context.movement
+        strike_list = [*range(atm_strike-10*strike_gap, atm_strike+11*strike_gap, strike_gap)]
+        options_list = [f"{strike}CE" for strike in strike_list] + [f"{strike}PE" for strike in strike_list]
+
+        
+        OIs = self.context.get_OI(options_list)
+        for oi in OIs:
+            data.append(oi)
+        Volumes = self.context.get_Volumes(options_list)
+        for vol in Volumes:
+            data.append(vol)
+
+
+        self.context.strategy_args["DataStorage"].append(data)
         pass
 
     def position_management(self, spot) -> None:
