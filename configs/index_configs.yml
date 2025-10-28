@@ -1,0 +1,27 @@
+{
+  BANKNIFTY: {
+    movement : 100,
+    lot_size : 15,
+    limit : 900
+  },
+  FINNIFTY: {
+    movement : 50,
+    lot_size : 40,
+    limit : 1800
+  },
+  NIFTY: {
+    movement : 50,
+    lot_size : 50,
+    limit : 1800
+  },
+  MIDCPNIFTY: {
+    movement : 100,
+    lot_size : 75,
+    limit : 1800
+  },
+  SENSEX: {
+    movement : 500,
+    lot_size : 10,
+    limit : 900,
+  }
+}
