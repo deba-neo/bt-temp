@@ -130,15 +130,29 @@ class ThetaGamma(Strategy):
 
         strike_gap = self.context.movement
         strike_list = [*range(atm_strike-10*strike_gap, atm_strike+11*strike_gap, strike_gap)]
-        options_list = [f"{strike}CE" for strike in strike_list] + [f"{strike}PE" for strike in strike_list]
 
         
-        OIs = self.context.get_OI(options_list)
-        for oi in OIs:
-            data.append(oi)
-        Volumes = self.context.get_Volumes(options_list)
-        for vol in Volumes:
-            data.append(vol)
+        calls = [f"{strike}CE" for strike in strike_list]
+        puts = [f"{strike}PE" for strike in strike_list]
+
+        call_oi = self.context.get_OI(calls)
+        put_oi = self.context.get_OI(puts)
+        data.append(sum(call_oi))
+        data.append(sum(put_oi))
+
+        call_vol = self.context.get_Volumes(calls)
+        put_vol = self.context.get_Volumes(puts)
+        data.append(sum(call_vol))
+        data.append(sum(put_vol))
+        
+        # options_list = [f"{strike}CE" for strike in strike_list] + [f"{strike}PE" for strike in strike_list]
+
+        # OIs = self.context.get_OI(options_list)
+        # for oi in OIs:
+        #     data.append(oi)
+        # Volumes = self.context.get_Volumes(options_list)
+        # for vol in Volumes:
+        #     data.append(vol)
 
 
         self.context.strategy_args["DataStorage"].append(data)

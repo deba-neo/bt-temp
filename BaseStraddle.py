@@ -1618,7 +1618,7 @@ class BaseStraddle():
 
         ins_list = [self._get_option(option) for option in options_list]
 
-        vol= self.MD._get_oi(ins_list)
+        vol= self.MD._get_volumes(ins_list)
 
         return vol
     

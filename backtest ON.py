@@ -238,7 +238,9 @@ def run_one_day(day_file: pd.DataFrame, strategy_configs, date, starttime):
     transations = [traders[0].total_pnl, traders[0].buy_qty, traders[0].sell_qty, traders[0].buy_value, traders[0].sell_value, traders[0].total_lot_sizes_traded, traders[0].strategy_args["MaxPnl"], traders[0].strategy_args["MinPNL"], traders[0].total_pnl/strategy_configs[0]["strategy_args"]["demand"], strategy_configs[0]["strategy_args"]["demand"]]
     # Logger.always_output(sys.stdout, f"Avg Util : {sum(util)/len(util)}\n")   
     
-    df = pd.DataFrame(traders[0].strategy_args["DataStorage"])
+    columns = ['Time', 'Spot', 'PnL', 'DTE', 'ATM IV', 'ATM Straddle', 'ATM Strike', 'Call OI', 'Put OI', 'Call Vol', 'Put Vol']
+
+    df = pd.DataFrame(traders[0].strategy_args["DataStorage"], columns=columns)
 
     init =  int(round(spot_price[0] / float(traders[0].movement))) * traders[0].movement
     return init, transations, df
